@@ -60,8 +60,8 @@ const PostMedia: React.FC<PostMediaProps> = props => {
   const [videoPaused, setVideoPaused] = React.useState(true);
   const isDarkMode = useColorScheme() === 'dark';
 
-  // const styles = isDarkMode ? darkModeStyles : lightModeStyles;
-  const styles = lightModeStyles;
+  const styles = isDarkMode ? darkModeStyles : lightModeStyles;
+  // const styles = lightModeStyles;
   console.log(
     '[PostMedia] props.media',
     props.media.mediaType,

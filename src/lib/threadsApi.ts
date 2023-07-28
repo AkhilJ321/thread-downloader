@@ -90,22 +90,21 @@ class ThreadsApi {
         method: 'POST',
         mode: 'cors',
         credentials: 'omit',
-      }).then(r => r.json());
+      });
 
-      const reader = new FileReader();
-      reader.readAsText(response.data);
-      reader.onload = () => {
-        try {
-          const jsonData = JSON.parse(reader.result);
-          console.log(jsonData); // This will log the parsed JSON data
-        } catch (error) {
-          console.error('Error parsing JSON:', error);
-        }
-      };
-
-      if (response.data) {
+      if (!response.ok) {
+        console.error('Network response was not ok');
         return {
-          data: response.data,
+          success: false,
+        };
+      }
+
+      const jsonData = await response.json();
+      console.log(jsonData);
+
+      if (jsonData && jsonData.data) {
+        return {
+          data: jsonData.data,
           success: true,
         };
       }

@@ -1,13 +1,15 @@
-import FS from 'react-native-fs';
+import RNFS from 'react-native-fs';
 import {ThreadsPost} from '../types/ThreadsPost';
 
 class Download {
   static async ensureDirectoryExists() {
     try {
-      const exists = await FS.exists(FS.DownloadDirectoryPath);
+      const exists = await RNFS.exists(RNFS.DownloadDirectoryPath);
       if (!exists) {
-        await FS.mkdir(FS.DownloadDirectoryPath);
+        await RNFS.mkdir(RNFS.DocumentDirectoryPath);
+        console.log('hello');
       }
+      console.log('halo');
       return {
         success: true,
       };
@@ -24,28 +26,46 @@ class Download {
     progressCallback: (progress: number) => void,
   ) {
     try {
-      await Download.ensureDirectoryExists();
+      const {success} = await Download.ensureDirectoryExists();
+      if (!success) {
+        console.error('[downloadFile] Failed to create download directory.');
+        return {
+          success: false,
+        };
+      }
+
       // 1. download media
       const totalFiles = post.media.candidates.length;
       for (let i = 0; i < totalFiles; i++) {
         const mediaCandidate = post.media.candidates[i];
         const mime = mediaCandidate.type === 'image' ? 'jpg' : 'mp4';
-        const path = `${FS.DownloadDirectoryPath}/${post.id}_${i}of${totalFiles}.${mime}`;
+        const path = `${RNFS.DocumentDirectoryPath}/${post.id}_${i}of${totalFiles}.${mime}`;
         const url = mediaCandidate.url;
-        const {promise} = FS.downloadFile({
-          fromUrl: url,
-          toFile: path,
-          progress: res => {
-            progressCallback((res.bytesWritten / res.contentLength) * 100);
-          },
-        });
-        await promise;
+
+        try {
+          const {promise} = await RNFS.downloadFile({
+            fromUrl: url,
+            toFile: path,
+            progress: res => {
+              progressCallback((res.bytesWritten / res.contentLength) * 100);
+            },
+          });
+          await promise;
+        } catch (error) {
+          console.error(
+            `[downloadFile] Media ${i + 1} of ${totalFiles} download failed:`,
+            error,
+          );
+          return {
+            success: false,
+          };
+        }
       }
 
       // 2. download thumbnail
-      const thumbnailPath = `${FS.DownloadDirectoryPath}/${post.id}_thumbnail.jpg`;
+      const thumbnailPath = `${RNFS.DocumentDirectoryPath}/${post.id}_thumbnail.jpg`;
       const thumbnailUrl = post.thumbnail;
-      const {promise: thumbnailPromise} = FS.downloadFile({
+      const {promise: thumbnailPromise} = RNFS.downloadFile({
         fromUrl: thumbnailUrl,
         toFile: thumbnailPath,
         progress: res => {
@@ -59,9 +79,9 @@ class Download {
       await thumbnailPromise;
 
       // 3. download user profile pic
-      const profilePicPath = `${FS.DownloadDirectoryPath}/${post.user.id}_profile_pic.jpg`;
+      const profilePicPath = `${RNFS.DocumentDirectoryPath}/${post.user.id}_profile_pic.jpg`;
       const profilePicUrl = post.user.profilePicUrl;
-      const {promise: profilePicPromise} = FS.downloadFile({
+      const {promise: profilePicPromise} = RNFS.downloadFile({
         fromUrl: profilePicUrl,
         toFile: profilePicPath,
         progress: res => {
@@ -78,7 +98,7 @@ class Download {
         success: true,
         mediaFilePaths: post.media.candidates.map(
           (mediaCandidate, index) =>
-            `${FS.DownloadDirectoryPath}/${post.id}_${index}of${totalFiles}.${
+            `${RNFS.DocumentDirectoryPath}/${post.id}_${index}of${totalFiles}.${
               mediaCandidate.type === 'image' ? 'jpg' : 'mp4'
             }`,
         ),
@@ -100,19 +120,19 @@ class Download {
       for (let i = 0; i < totalFiles; i++) {
         const mediaCandidate = post.media.candidates[i];
         const mime = mediaCandidate.type === 'image' ? 'jpg' : 'mp4';
-        const path = `${FS.DownloadDirectoryPath}/${post.id}_${i}of${totalFiles}.${mime}`;
-        await FS.unlink(path);
+        const path = `${RNFS.DocumentDirectoryPath}/${post.id}_${i}of${totalFiles}.${mime}`;
+        await RNFS.unlink(path);
         console.log(`[deleteFile] ${i} of ${totalFiles}`);
       }
 
       // 2. delete thumbnail
-      const thumbnailPath = `${FS.DownloadDirectoryPath}/${post.id}_thumbnail.jpg`;
-      await FS.unlink(thumbnailPath);
+      const thumbnailPath = `${RNFS.DocumentDirectoryPath}/${post.id}_thumbnail.jpg`;
+      await RNFS.unlink(thumbnailPath);
       console.log('[deleteFile] thumbnail');
 
       // 3. delete user profile pic
-      const profilePicPath = `${FS.DownloadDirectoryPath}/${post.user.id}_profile_pic.jpg`;
-      await FS.unlink(profilePicPath);
+      const profilePicPath = `${RNFS.DocumentDirectoryPath}/${post.user.id}_profile_pic.jpg`;
+      await RNFS.unlink(profilePicPath);
       console.log('[deleteFile] profile pic');
 
       return {
@@ -128,8 +148,8 @@ class Download {
 
   static async deleteAllFiles() {
     try {
-      await FS.unlink(FS.DownloadDirectoryPath);
-      await FS.mkdir(FS.DownloadDirectoryPath);
+      await RNFS.unlink(RNFS.DocumentDirectoryPath);
+      await RNFS.mkdir(RNFS.DocumentDirectoryPath);
       console.log('[deleteAllFiles] success');
       return {
         success: true,

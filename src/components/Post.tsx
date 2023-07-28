@@ -133,8 +133,8 @@ const darkModeStyles = StyleSheet.create({
 const Post: React.FC<PostProps> = (props: PostProps) => {
   const isDarkMode = useColorScheme() === 'dark';
 
-  // const styles = isDarkMode ? darkModeStyles : lightModeStyles;
-  const styles = lightModeStyles;
+  const styles = isDarkMode ? darkModeStyles : lightModeStyles;
+  // const styles = lightModeStyles;
 
   async function shareToOtherApps() {
     try {

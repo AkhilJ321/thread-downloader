@@ -12,8 +12,9 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import ThreadsApi from '../lib/threadsApi';
 import Post from '../components/Post';
 import {ThreadsPost} from '../types/ThreadsPost';
-import {getSamplePost} from '../helpers/sampleData';
+// import {getSamplePost} from '../helpers/sampleData';
 import db from '../lib/db';
+import {PermissionsAndroid} from 'react-native';
 
 const lightModeStyles = StyleSheet.create({
   container: {
@@ -122,8 +123,8 @@ const darkModeStyles = StyleSheet.create({
 const HomeScreen: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
-  // const styles = isDarkMode ? darkModeStyles : lightModeStyles;
-  const styles = lightModeStyles;
+  const styles = isDarkMode ? darkModeStyles : lightModeStyles;
+  // const styles = lightModeStyles;
   const [loading, setLoading] = React.useState<boolean>(false);
   const [downloadProgressMessage, setDownloadProgressMessage] =
     React.useState<string>('');
@@ -137,6 +138,7 @@ const HomeScreen: React.FC = () => {
   };
 
   const handleThreadsUrlChange = (text: string) => {
+    setError('');
     setThreadsUrl(text);
   };
 
@@ -146,20 +148,31 @@ const HomeScreen: React.FC = () => {
     if (loading) {
       return;
     }
-    setLoading(true);
-    setError('');
-    const res = await ThreadsApi.getMedia(threadsUrl);
-    console.log('[handleMediaDownload] res', res);
-    if (res.success && res.data) {
-      setPostData(res.data);
-      await db.downloadPost(res.data, (progress: number) => {
-        setDownloadProgressMessage(`${progress.toFixed(0)}%`);
-      });
-      setDownloadProgressMessage('');
-    } else {
+
+    try {
+      if (threadsUrl.startsWith('https://www.threads.net/')) {
+        setLoading(true);
+        setError('');
+        const res = await ThreadsApi.getMedia(threadsUrl);
+        console.log('[handleMediaDownload] res', res);
+        if (res.success && res.data) {
+          setPostData(res.data);
+          await db.downloadPost(res.data, (progress: number) => {
+            setDownloadProgressMessage(`${progress.toFixed(0)}%`);
+          });
+          setDownloadProgressMessage('');
+        } else {
+          setError('Request Failed. Please try again.');
+        }
+        setLoading(false);
+      } else {
+        setError('Invalid URL');
+      }
+    } catch (error) {
       setError('Request Failed. Please try again.');
+      setLoading(false);
+      return;
     }
-    setLoading(false);
   }
 
   return (
@@ -171,7 +184,7 @@ const HomeScreen: React.FC = () => {
         value={threadsUrl}
         onChangeText={handleThreadsUrlChange}
         placeholderTextColor={
-          !isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'
+          isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'
         }
       />
 

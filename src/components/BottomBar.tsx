@@ -6,8 +6,8 @@ import {DownloadArrowPlate, Home} from '../assets/SvgIcons';
 function BottomBar() {
   const isDarkMode = useColorScheme() === 'dark';
 
-  // const styles = isDarkMode ? darkModeStyles : lightModeStyles;
-  const styles = lightModeStyles;
+  const styles = isDarkMode ? darkModeStyles : lightModeStyles;
+  // const styles = lightModeStyles;
   const navigation = useNavigation();
 
   const navigateToScreen = (screenName: string) => {
@@ -20,13 +20,13 @@ function BottomBar() {
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigateToScreen('Home')}>
-        <Home height={22} color={!isDarkMode ? '#fff' : '#000'} />
+        <Home height={22} color={!isDarkMode ? '#000' : '#fff'} />
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigateToScreen('Downloads')}>
-        <DownloadArrowPlate height={22} color={!isDarkMode ? '#fff' : '#000'} />
+        <DownloadArrowPlate height={22} color={!isDarkMode ? '#000' : '#fff'} />
       </TouchableOpacity>
     </View>
   );
@@ -63,6 +63,7 @@ const darkModeStyles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'column',
     height: '100%',
+    // backgroundColor: '#060404f0f',
   },
 });
 

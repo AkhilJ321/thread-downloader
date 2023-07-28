@@ -35,8 +35,8 @@ const darkModeStyles = StyleSheet.create({
 const DownloadsScreen: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
-  // const styles = isDarkMode ? darkModeStyles : lightModeStyles;
-  const styles = lightModeStyles;
+  const styles = isDarkMode ? darkModeStyles : lightModeStyles;
+  // const styles = lightModeStyles;
   const [threadsPosts, setThreadsPosts] = React.useState<ThreadsPost<true>[]>(
     [],
   );
