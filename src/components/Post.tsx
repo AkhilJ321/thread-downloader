@@ -2,7 +2,6 @@ import React from 'react';
 import {ThreadsPost} from '../types/ThreadsPost';
 import {
   Image,
-  StyleSheet,
   Text,
   TouchableNativeFeedback,
   View,
@@ -11,129 +10,17 @@ import {
 import Share from 'react-native-share';
 import PostMedia from './PostMedia';
 import {Send, Verified} from '../assets/SvgIcons';
+import {PostDarkModeStyles, PostLightModeStyles} from '../assets/styles';
 
 type PostProps = {
   postData: ThreadsPost<any>;
 };
 
-const lightModeStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    margin: 8,
-    padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  shareButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 50,
-    backgroundColor: '#eee',
-  },
-  userContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  userDp: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-  },
-  username: {
-    marginLeft: 10,
-    marginRight: 2,
-    color: '#000',
-  },
-  captionText: {
-    fontSize: 16,
-    color: '#000',
-    marginVertical: 10,
-  },
-  metricsContainer: {
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  metricText: {
-    fontSize: 14,
-    color: '#000',
-    opacity: 0.5,
-  },
-  dot: {
-    width: 3,
-    height: 3,
-    borderRadius: 50,
-    backgroundColor: '#000',
-    opacity: 0.5,
-  },
-});
-
-const darkModeStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    backgroundColor: '#03001C',
-    margin: 8,
-    padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  userContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  userDp: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-  },
-  username: {
-    marginLeft: 10,
-    marginRight: 2,
-    color: '#fff',
-  },
-  captionText: {
-    fontSize: 16,
-    color: '#fff',
-    marginVertical: 10,
-  },
-
-  metricsContainer: {
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  metricText: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.5,
-  },
-  dot: {
-    width: 3,
-    height: 3,
-    borderRadius: 50,
-    backgroundColor: '#fff',
-    opacity: 0.5,
-  },
-});
-
 const Post: React.FC<PostProps> = (props: PostProps) => {
+  // console.log('[Post] props', JSON.stringify(props));
   const isDarkMode = useColorScheme() === 'dark';
 
-  const styles = isDarkMode ? darkModeStyles : lightModeStyles;
+  const styles = isDarkMode ? PostDarkModeStyles : PostLightModeStyles;
   // const styles = lightModeStyles;
 
   async function shareToOtherApps() {
@@ -205,11 +92,9 @@ const Post: React.FC<PostProps> = (props: PostProps) => {
                       height: candidate.height,
                       width: candidate.width,
                       type: candidate.type,
-                      url:
-                        'file://' +
-                        (props.postData.mediaFilePaths
-                          ? props.postData.mediaFilePaths[index]
-                          : props.postData.media.candidates[index].url),
+                      url: props.postData.mediaFilePaths
+                        ? 'file://' + props.postData.mediaFilePaths[index]
+                        : props.postData.media.candidates[index].url,
                     };
                   },
                 ),

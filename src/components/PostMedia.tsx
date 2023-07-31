@@ -3,13 +3,16 @@ import {
   Dimensions,
   FlatList,
   Image,
-  StyleSheet,
   TouchableOpacity,
   View,
   useColorScheme,
 } from 'react-native';
 import Video from 'react-native-video';
 import {MediaCandidate} from '../types/ThreadsPost';
+import {
+  PostMediaLightModeStyles,
+  PostMediaDarkModeStyles,
+} from '../assets/styles';
 
 type PostMediaProps = {
   media: {
@@ -20,53 +23,15 @@ type PostMediaProps = {
   thumbnail: string;
 };
 
-const lightModeStyles = StyleSheet.create({
-  container: {
-    paddingVertical: 2,
-  },
-  image: {
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-    borderRadius: 10,
-    borderColor: 'black',
-    borderWidth: 1,
-  },
-  video: {
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-  },
-});
-
-const darkModeStyles = StyleSheet.create({
-  container: {
-    paddingVertical: 2,
-  },
-  image: {
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-    borderRadius: 10,
-  },
-  video: {
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-  },
-});
-
 const PostMedia: React.FC<PostMediaProps> = props => {
   const [videoPaused, setVideoPaused] = React.useState(true);
   const isDarkMode = useColorScheme() === 'dark';
 
-  const styles = isDarkMode ? darkModeStyles : lightModeStyles;
+  const styles = isDarkMode
+    ? PostMediaDarkModeStyles
+    : PostMediaLightModeStyles;
   // const styles = lightModeStyles;
-  console.log(
-    '[PostMedia] props.media',
-    props.media.mediaType,
-    props.media.candidates[0].url,
-  );
+  console.log('[PostMedia] props.media', props.media.candidates[0].url);
 
   return (
     <View style={styles.container}>

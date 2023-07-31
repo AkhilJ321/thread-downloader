@@ -123,6 +123,7 @@ class ThreadsApi {
   static async getMedia(url: string): Promise<{
     success: boolean;
     data: ThreadsPost | null;
+    message?: string;
   }> {
     const postIdResponse = await ThreadsApi._getPostId(url);
     console.log('[DEBUG] postIdResponse', postIdResponse);
@@ -130,6 +131,7 @@ class ThreadsApi {
       return {
         success: false,
         data: null,
+        message: 'Could not get post id',
       };
     }
 
@@ -141,6 +143,7 @@ class ThreadsApi {
       return {
         success: false,
         data: null,
+        message: 'Could not get media json',
       };
     }
 
