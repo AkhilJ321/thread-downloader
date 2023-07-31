@@ -37,8 +37,6 @@ const HomeScreen: React.FC = () => {
     setThreadsUrl(text);
   };
 
-  // db.clearDb();
-
   async function handleMediaDownload() {
     if (loading) {
       return;
@@ -57,7 +55,7 @@ const HomeScreen: React.FC = () => {
           });
           setDownloadProgressMessage('');
         } else {
-          setError('Request Failed. Please try again.');
+          setError(res.message || 'Request Failed. Please try again.');
         }
         setLoading(false);
       } else {
@@ -69,6 +67,9 @@ const HomeScreen: React.FC = () => {
       return;
     }
   }
+
+  // FOR DEV PURPOSE ONLY
+  // db.clearDb();
 
   return (
     <View style={styles.container}>

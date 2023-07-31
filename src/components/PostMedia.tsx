@@ -3,7 +3,6 @@ import {
   Dimensions,
   FlatList,
   Image,
-  StyleSheet,
   TouchableOpacity,
   View,
   useColorScheme,
@@ -32,11 +31,7 @@ const PostMedia: React.FC<PostMediaProps> = props => {
     ? PostMediaDarkModeStyles
     : PostMediaLightModeStyles;
   // const styles = lightModeStyles;
-  console.log(
-    '[PostMedia] props.media',
-    props.media.mediaType,
-    props.media.candidates[0].url,
-  );
+  console.log('[PostMedia] props.media', props.media.candidates[0].url);
 
   return (
     <View style={styles.container}>

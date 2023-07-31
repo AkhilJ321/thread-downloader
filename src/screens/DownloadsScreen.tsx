@@ -21,7 +21,6 @@ const DownloadsScreen: React.FC = () => {
 
   async function getDownloadedPostsFromDb() {
     const posts = await db.getPosts();
-    console.log('[getDownloadedPostsFromDb] posts', posts);
     setThreadsPosts(posts);
   }
 

@@ -17,6 +17,7 @@ type PostProps = {
 };
 
 const Post: React.FC<PostProps> = (props: PostProps) => {
+  // console.log('[Post] props', JSON.stringify(props));
   const isDarkMode = useColorScheme() === 'dark';
 
   const styles = isDarkMode ? PostDarkModeStyles : PostLightModeStyles;
@@ -91,11 +92,9 @@ const Post: React.FC<PostProps> = (props: PostProps) => {
                       height: candidate.height,
                       width: candidate.width,
                       type: candidate.type,
-                      url:
-                        'file://' +
-                        (props.postData.mediaFilePaths
-                          ? props.postData.mediaFilePaths[index]
-                          : props.postData.media.candidates[index].url),
+                      url: props.postData.mediaFilePaths
+                        ? 'file://' + props.postData.mediaFilePaths[index]
+                        : props.postData.media.candidates[index].url,
                     };
                   },
                 ),
