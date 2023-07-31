@@ -99,7 +99,7 @@ class db {
       });
       console.log('[db] Post downloaded', post.id);
     } catch (error) {
-      console.log('[db] Error downloading post', error);
+      console.error('[db] Error downloading post', error);
     }
   }
 

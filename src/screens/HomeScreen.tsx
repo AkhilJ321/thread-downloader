@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -14,111 +13,7 @@ import Post from '../components/Post';
 import {ThreadsPost} from '../types/ThreadsPost';
 // import {getSamplePost} from '../helpers/sampleData';
 import db from '../lib/db';
-import {PermissionsAndroid} from 'react-native';
-
-const lightModeStyles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    paddingTop: 50,
-    flex: 1,
-  },
-  heading: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#301E67',
-  },
-  textInput: {
-    borderWidth: 0.5,
-    borderColor: '#301E67',
-    borderRadius: 50,
-    marginHorizontal: 20,
-    marginTop: 40,
-    padding: 10,
-    shadowColor: 'gray',
-    shadowOffset: {width: 0, height: 0},
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-    elevation: 5,
-    backgroundColor: 'white',
-    color: '#301E67',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 50,
-    margin: 20,
-  },
-  button: {
-    backgroundColor: '#301E67',
-    paddingVertical: 15,
-    borderRadius: 50,
-    flex: 1,
-    marginHorizontal: 4,
-    alignItems: 'center',
-    shadowColor: 'gray',
-    shadowOffset: {width: 0, height: 0},
-    shadowOpacity: 0.9,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  buttonText: {
-    color: '#fff',
-  },
-});
-
-const darkModeStyles = StyleSheet.create({
-  container: {
-    backgroundColor: '#03001C',
-    paddingTop: 50,
-    flex: 1,
-  },
-  heading: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#fff',
-  },
-  textInput: {
-    borderWidth: 0.5,
-    borderColor: 'black',
-    borderRadius: 50,
-    marginHorizontal: 20,
-    marginTop: 40,
-    padding: 10,
-    shadowColor: 'gray',
-    shadowOffset: {width: 0, height: 0},
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-    elevation: 5,
-    backgroundColor: '#301E67',
-    color: '#fff',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 50,
-    margin: 20,
-  },
-  button: {
-    backgroundColor: '#301E67',
-    paddingVertical: 15,
-    borderRadius: 50,
-    flex: 1,
-    marginHorizontal: 4,
-    alignItems: 'center',
-    shadowColor: 'gray',
-    shadowOffset: {width: 0, height: 0},
-    shadowOpacity: 0.9,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  buttonText: {
-    color: '#fff',
-  },
-});
+import {darkModeStyles, lightModeStyles} from '../assets/styles';
 
 const HomeScreen: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';

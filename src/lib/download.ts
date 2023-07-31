@@ -4,12 +4,16 @@ import {ThreadsPost} from '../types/ThreadsPost';
 class Download {
   static async ensureDirectoryExists() {
     try {
-      const exists = await RNFS.exists(RNFS.DownloadDirectoryPath);
-      if (!exists) {
-        await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-        console.log('hello');
+      const downloadDirExists = await RNFS.exists(RNFS.DownloadDirectoryPath);
+      if (!downloadDirExists) {
+        await RNFS.mkdir(RNFS.DownloadDirectoryPath);
       }
-      console.log('halo');
+
+      const cacheDirExists = await RNFS.exists(RNFS.CachesDirectoryPath);
+      if (!cacheDirExists) {
+        await RNFS.mkdir(RNFS.CachesDirectoryPath);
+      }
+
       return {
         success: true,
       };
@@ -26,24 +30,18 @@ class Download {
     progressCallback: (progress: number) => void,
   ) {
     try {
-      const {success} = await Download.ensureDirectoryExists();
-      if (!success) {
-        console.error('[downloadFile] Failed to create download directory.');
-        return {
-          success: false,
-        };
-      }
+      await Download.ensureDirectoryExists();
 
       // 1. download media
       const totalFiles = post.media.candidates.length;
       for (let i = 0; i < totalFiles; i++) {
         const mediaCandidate = post.media.candidates[i];
         const mime = mediaCandidate.type === 'image' ? 'jpg' : 'mp4';
-        const path = `${RNFS.DocumentDirectoryPath}/${post.id}_${i}of${totalFiles}.${mime}`;
+        const path = `${RNFS.DownloadDirectoryPath}/${post.id}_${i}of${totalFiles}.${mime}`;
         const url = mediaCandidate.url;
 
         try {
-          const {promise} = await RNFS.downloadFile({
+          const {promise} = RNFS.downloadFile({
             fromUrl: url,
             toFile: path,
             progress: res => {
@@ -63,7 +61,7 @@ class Download {
       }
 
       // 2. download thumbnail
-      const thumbnailPath = `${RNFS.DocumentDirectoryPath}/${post.id}_thumbnail.jpg`;
+      const thumbnailPath = `${RNFS.CachesDirectoryPath}/${post.id}_thumbnail.jpg`;
       const thumbnailUrl = post.thumbnail;
       const {promise: thumbnailPromise} = RNFS.downloadFile({
         fromUrl: thumbnailUrl,
@@ -79,7 +77,7 @@ class Download {
       await thumbnailPromise;
 
       // 3. download user profile pic
-      const profilePicPath = `${RNFS.DocumentDirectoryPath}/${post.user.id}_profile_pic.jpg`;
+      const profilePicPath = `${RNFS.CachesDirectoryPath}/${post.user.id}_profile_pic.jpg`;
       const profilePicUrl = post.user.profilePicUrl;
       const {promise: profilePicPromise} = RNFS.downloadFile({
         fromUrl: profilePicUrl,
