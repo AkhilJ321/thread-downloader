@@ -31,7 +31,6 @@ const PostMedia: React.FC<PostMediaProps> = props => {
     ? PostMediaDarkModeStyles
     : PostMediaLightModeStyles;
   // const styles = lightModeStyles;
-  console.log('[PostMedia] props.media', props.media.candidates[0].url);
 
   return (
     <View style={styles.container}>
@@ -65,22 +64,37 @@ const PostMedia: React.FC<PostMediaProps> = props => {
           decelerationRate={'fast'}
           snapToAlignment="start"
           snapToInterval={Dimensions.get('screen').width}
-          //   ref={ref}
-          //   onViewableItemsChanged={onViewRef.current}
-          //   viewabilityConfig={viewConfigRef.current}
           scrollEventThrottle={12}
           disableIntervalMomentum
-          renderItem={({item}) => (
-            <Image
-              source={{
-                uri: item.url,
-              }}
-              style={{...styles.image, marginRight: 10, borderRadius: 10}}
-            />
-          )}
-          data={props.media.candidates.filter(
-            candidate => candidate.type === 'image',
-          )}
+          renderItem={({item}) => {
+            if (item.type === 'image') {
+              return (
+                <Image
+                  source={{
+                    uri: item.url,
+                  }}
+                  style={{...styles.image, marginRight: 10, borderRadius: 10}}
+                />
+              );
+            } else if (item.type === 'video') {
+              return (
+                <TouchableOpacity onPress={() => setVideoPaused(!videoPaused)}>
+                  <Video
+                    source={{
+                      uri: item.url,
+                    }}
+                    style={styles.video}
+                    resizeMode="contain"
+                    paused={videoPaused}
+                    repeat={true}
+                    poster={props.thumbnail}
+                  />
+                </TouchableOpacity>
+              );
+            }
+          }}
+          data={props.media.candidates}
+          keyExtractor={(item, index) => index.toString()} // You might need to adjust this based on your data structure
         />
       )}
     </View>

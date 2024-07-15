@@ -58,7 +58,7 @@ class ThreadsApi {
   static async _getMediaJson(postId: string) {
     try {
       const body = `lsd=HFrY0gn8r6ox-SRJVs36y-&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=BarcelonaPostPageQuery&variables=%7B%22postID%22%3A%22${postId}%22%7D&server_timestamps=true&doc_id=6374009175999984`;
-      console.log('[DEBUG] body', body);
+      // console.log('[DEBUG] body', body);
       const response = await fetch('https://www.threads.net/api/graphql', {
         headers: {
           accept: '*/*',
@@ -126,7 +126,7 @@ class ThreadsApi {
     message?: string;
   }> {
     const postIdResponse = await ThreadsApi._getPostId(url);
-    console.log('[DEBUG] postIdResponse', postIdResponse);
+    // console.log('[DEBUG] postIdResponse', postIdResponse);
     if (!postIdResponse.success || !postIdResponse.postId) {
       return {
         success: false,
@@ -138,7 +138,7 @@ class ThreadsApi {
     const mediaJsonResponse = await ThreadsApi._getMediaJson(
       postIdResponse.postId,
     );
-    console.log('[DEBUG] mediaJsonResponse', mediaJsonResponse);
+    // console.log('[DEBUG] mediaJsonResponse', mediaJsonResponse);
     if (!mediaJsonResponse.success) {
       return {
         success: false,

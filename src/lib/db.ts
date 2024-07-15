@@ -5,6 +5,7 @@ import Download from './download';
 const UserSchema = {
   name: 'User',
   primaryKey: 'id',
+
   properties: {
     id: 'string',
     username: 'string',
@@ -65,15 +66,6 @@ class db {
     try {
       console.log('\n[db] Downloading post:', post.id);
 
-      const downloadFileRes = await Download.downloadFile(
-        post,
-        progressCallback,
-      );
-      if (!downloadFileRes.success) {
-        return {
-          success: false,
-        };
-      }
       if (!this.realm) {
         this.realm = await Realm.open({
           schema: [
@@ -88,16 +80,49 @@ class db {
       } else {
         console.log('[db] Realm already opened');
       }
+
+      const existingPost = this.realm.objectForPrimaryKey(
+        'ThreadsPost',
+        post.id,
+      );
+      if (existingPost) {
+        console.log('[db] Post already exists');
+        return {
+          success: false,
+          message: 'Post already downloaded',
+        };
+      }
+
+      const downloadFileRes = await Download.downloadFile(
+        post,
+        progressCallback,
+      );
+      if (!downloadFileRes.success) {
+        return {
+          success: false,
+          message: 'Error downloading post',
+        };
+      }
+
+      const modifiedPost = {
+        ...post,
+        user: {...post.user, id: post.user.id + new Date().getTime()},
+      };
+      const data = {
+        ...modifiedPost,
+        downloaded: true,
+        mediaFilePaths: downloadFileRes.mediaFilePaths,
+        thumbnailFilePath: downloadFileRes.thumbnailFilePath,
+        profilePicFilePath: downloadFileRes.profilePicFilePath,
+      };
+
       this.realm.write(() => {
-        this.realm?.create('ThreadsPost', {
-          ...post,
-          downloaded: true,
-          mediaFilePaths: downloadFileRes.mediaFilePaths,
-          thumbnailFilePath: downloadFileRes.thumbnailFilePath,
-          profilePicFilePath: downloadFileRes.profilePicFilePath,
-        });
+        this.realm?.create('ThreadsPost', data);
       });
-      console.log('[db] Post downloaded', post.id);
+      return {
+        success: true,
+        message: 'Post downloaded',
+      };
     } catch (error) {
       console.error('[db] Error downloading post', error);
     }

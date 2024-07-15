@@ -6,8 +6,10 @@ import {
   TouchableOpacity,
   View,
   useColorScheme,
+  ToastAndroid,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
+
 import ThreadsApi from '../lib/threadsApi';
 import Post from '../components/Post';
 import {ThreadsPost} from '../types/ThreadsPost';
@@ -23,7 +25,7 @@ const HomeScreen: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [downloadProgressMessage, setDownloadProgressMessage] =
     React.useState<string>('');
-  const [error, setError] = React.useState<string>('');
+
   const [threadsUrl, setThreadsUrl] = React.useState<string>('');
   const [postData, setPostData] = React.useState<ThreadsPost | null>(null);
 
@@ -33,7 +35,6 @@ const HomeScreen: React.FC = () => {
   };
 
   const handleThreadsUrlChange = (text: string) => {
-    setError('');
     setThreadsUrl(text);
   };
 
@@ -45,24 +46,65 @@ const HomeScreen: React.FC = () => {
     try {
       if (threadsUrl.startsWith('https://www.threads.net/')) {
         setLoading(true);
-        setError('');
+
         const res = await ThreadsApi.getMedia(threadsUrl);
-        console.log('[handleMediaDownload] res', res);
+        // console.log('[handleMediaDownload] res', res);
         if (res.success && res.data) {
           setPostData(res.data);
-          await db.downloadPost(res.data, (progress: number) => {
-            setDownloadProgressMessage(`${progress.toFixed(0)}%`);
-          });
+
+          const downloadResult = await db.downloadPost(
+            res.data,
+            (progress: number) => {
+              setDownloadProgressMessage(`${progress.toFixed(0)}%`);
+            },
+          );
+
+          // const jsonDownloadResult = JSON.stringify(downloadResult);
+
+          // const parsedDownloadResult = JSON.parse(jsonDownloadResult);
+
+          if (downloadResult && downloadResult.success === false) {
+            ToastAndroid.showWithGravityAndOffset(
+              downloadResult.message || 'Download Failed. Please try again.',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50,
+            );
+          } else {
+            // Success toast
+            ToastAndroid.showWithGravityAndOffset(
+              'Download Successful',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50,
+            );
+          }
+
           setDownloadProgressMessage('');
         } else {
-          setError(res.message || 'Request Failed. Please try again.');
+          console.log('[handleMediaDownload] res', res);
+          ToastAndroid.showWithGravityAndOffset(
+            res.message || 'Request Failed. Please try again.',
+            ToastAndroid.LONG,
+            ToastAndroid.BOTTOM,
+            25,
+            50,
+          );
         }
         setLoading(false);
       } else {
-        setError('Invalid URL');
+        ToastAndroid.showWithGravityAndOffset(
+          'Invalid URL',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
       }
     } catch (error) {
-      setError('Request Failed. Please try again.');
+      console.log('[handleMediaDownload] error', error);
       setLoading(false);
       return;
     }
@@ -103,10 +145,6 @@ const HomeScreen: React.FC = () => {
         <Text style={{textAlign: 'center'}}>{downloadProgressMessage}</Text>
       )}
       {loading && <Text style={{textAlign: 'center'}}>Loading...</Text>}
-
-      {error && (
-        <Text style={{color: 'red', textAlign: 'center'}}>{error}</Text>
-      )}
 
       <ScrollView>
         {postData && <Post postData={postData} />}

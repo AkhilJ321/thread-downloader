@@ -1,9 +1,33 @@
 import RNFS from 'react-native-fs';
 import {ThreadsPost} from '../types/ThreadsPost';
+import {PermissionsAndroid, Platform} from 'react-native';
 
+const OsVer = Platform.constants['Release'];
 class Download {
   static async ensureDirectoryExists() {
     try {
+      if (Platform.OS === 'android' && OsVer < 11) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission',
+            message:
+              'This app needs access to your device storage to download files.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.error('[ensureDirectoryExists] Storage permission denied');
+          return {
+            success: false,
+            message: 'Storage permission denied',
+          };
+        }
+      }
+
       const downloadDirectoryExists = await RNFS.exists(
         RNFS.DownloadDirectoryPath,
       );
@@ -23,6 +47,7 @@ class Download {
       console.error('[ensureDirectoryExists] error: ', error);
       return {
         success: false,
+        message: 'Error while checking or creating directories',
       };
     }
   }
@@ -32,6 +57,16 @@ class Download {
     progressCallback: (progress: number) => void,
   ) {
     try {
+      console.log(OsVer);
+      if (Platform.OS === 'android' && OsVer < 11) {
+        const permissionCheck = await this.ensureDirectoryExists();
+        if (!permissionCheck.success) {
+          return {
+            success: false,
+            message: permissionCheck.message,
+          };
+        }
+      }
       await Download.ensureDirectoryExists();
 
       // 1. download media
@@ -42,6 +77,8 @@ class Download {
         const mediaCandidate = post.media.candidates[i];
         const mime = mediaCandidate.type === 'image' ? 'jpg' : 'mp4';
         const path = `${RNFS.DownloadDirectoryPath}/${post.id}_${mediaNumber}of${totalFiles}.${mime}`;
+        // const path = `${RNFS.DocumentDirectoryPath}/${post.id}_${mediaNumber}of${totalFiles}.${mime}`;
+
         const url = mediaCandidate.url;
 
         try {
@@ -71,13 +108,6 @@ class Download {
       const {promise: thumbnailPromise} = RNFS.downloadFile({
         fromUrl: thumbnailUrl,
         toFile: thumbnailPath,
-        progress: res => {
-          console.log(
-            `[downloadFile] ${post.id}_thumbnail.jpg progress: ${
-              (res.bytesWritten / res.contentLength) * 100
-            }%`,
-          );
-        },
       });
       await thumbnailPromise;
 
